@@ -5,8 +5,6 @@ Battleship Referee
 
 Use this tool when two mates have developed their own REST Service for playing Battleship and you want them to fight each other.
 
-There are 5 REST API methods to implement. For more information about the API, check the [API.md](/API.md).
-
 ## Rules
 
 The rules are the official ones from the Hasbro Board Game. You can find then here: [http://www.hasbro.com/common/instruct/Battleship.PDF]()
@@ -21,6 +19,8 @@ If you want to create yours, just implement in any language with ahy technology 
 
 ## API Detail
 
+There are 5 REST API methods to implement. For a full running example, check [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton).
+
 #### New game
 
 Request:
@@ -30,9 +30,31 @@ Request:
 Response:
 
     {
-        gameId: "",
+        gameId: "1",
         grid: "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000"
     }
+
+- **gameId**: a string with any id that identify the game so you can find them on the next calls. Something such as an UUID should work.
+- **grid**: a 100 length string representing a battleship grid (10x10) with all ships placed:
+  - 1 x Carrier (5 holes and ID 1)
+  - 1 x Battleship (4 holes and ID 2)
+  - 1 x Cruiser (3 holes and ID 3)
+  - 1 x Submarine (5 holes and ID 4)
+  - 1 x Destroyer (2 holes and ID 5)
+
+Example: The following string "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000" is the same as:
+
+      1 2 3 4 5 6 7 8 9 10
+    A 0 3 0 0 2 2 2 2 0 0
+    B 0 3 0 0 0 0 0 0 0 0
+    C 0 3 1 0 0 0 0 0 0 0
+    D 0 0 1 0 0 0 5 0 0 0
+    E 0 0 1 0 0 0 5 0 0 0
+    F 0 0 1 0 0 4 4 4 0 0
+    G 0 0 1 0 0 0 0 0 0 0
+    H 0 0 0 0 0 0 0 0 0 0
+    I 0 0 0 0 0 0 0 0 0 0
+    J 0 0 0 0 0 0 0 0 0 0
 
 #### Call your shot!
 
@@ -59,9 +81,10 @@ Response:
         result: 0
     }
 
-* 0: Miss
-* 1: Hit
-* 2: Sunk!
+Result must be one of the following values:
+- 0: Miss
+- 1: Hit
+- 2: Sunk!
 
 #### Finishing a game
 
@@ -76,7 +99,6 @@ Response:
     {
         result: 0
     }
-
 
 ## Run a war between two REST Services
 
