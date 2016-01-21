@@ -111,7 +111,11 @@ You'll need PHP to run this referee.
 
 #### Start a game
 
-    ./bin/battleship play http://restgames.org http://restgames.org
+    ./bin/battleship play http://localhost:8080 http://localhost:8080
+
+#### Fighting a local service on friend's machine
+
+If you want to make public a service running on your machine, you don't need a public webserver, just use a tool such as [Ngrok](https://ngrok.com/).
 
 #### Output
 
