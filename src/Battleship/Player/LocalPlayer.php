@@ -1,6 +1,6 @@
 <?php
 
-namespace Battleship\Client;
+namespace Battleship\Player;
 
 use Battleship\Game\Game;
 use Battleship\Grid;

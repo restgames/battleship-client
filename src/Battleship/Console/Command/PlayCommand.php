@@ -2,12 +2,11 @@
 
 namespace Battleship\Console\Command;
 
-use Battleship\Client\Referee;
-use Battleship\Client\RestApiPlayer;
+use Battleship\Referee;
+use Battleship\Player\RestApiPlayer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class PlayCommand extends Command
@@ -35,13 +34,22 @@ class PlayCommand extends Command
         $player1 = $input->getArgument('player1');
         $player2 = $input->getArgument('player2');
 
-        $referee = new Referee(
+        $output->writeln('<info>REST Games: Battleship</info>');
+        $output->writeln('Play more games at: <info>https://github.com/restgames</info>');
+        $output->writeln(sprintf('<comment>Player #1 (%s)</comment> has declared war to <comment>Player #2 (%s)</comment>!', $player1, $player2));
+        $output->writeln('War has started and bombs are flying over our heads...');
+        $output->writeln('');
+
+        $result = (new Referee(
             new RestApiPlayer($player1),
             new RestApiPlayer($player2)
-        );
+        ))->play();
 
-        $winner = $referee->play();
-
-        $output->writeln($winner);
+        $output->writeln('');
+        $output->writeln('<info>'.$result->winner().' is the winner!</info> Congratulations!');
+        $output->writeln($result->reason());
+        if ($result->turns() > 0) {
+            $output->writeln('You did it in <comment>'.$result->turns().'</comment> turns.');
+        }
     }
 }

@@ -13,3 +13,9 @@ http://www.hasbro.com/common/instruct/Battleship.PDF
 ## Start a game
 
     ./bin/battleship play http://restgames.org/battleship http://restgames.org/battleship
+
+## How to create your own battleship engine
+
+You can code your own REST service in any language. However, we have developed some projects to use as skeletons:
+
+* [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton)

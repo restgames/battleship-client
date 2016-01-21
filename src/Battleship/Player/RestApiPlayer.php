@@ -1,8 +1,8 @@
 <?php
 
-namespace Battleship\Client;
+namespace Battleship\Player;
 
-use Battleship\Game\Game;
+use Battleship\Game;
 use Battleship\Grid;
 use Battleship\Hole;
 use GuzzleHttp\Client;
@@ -49,13 +49,15 @@ class RestApiPlayer implements Player
 
     /**
      * @param string $gameId
-     * @param string $letter
-     * @param int $number
-     * @return mixed
+     * @param Hole $hole
+     * @return int
      */
-    public function shotAt($gameId, $letter, $number)
+    public function shotAt($gameId, Hole $hole)
     {
-        $this->client->request('POST', $this->endpoint.'/battleship/game/'.$gameId.'/shot-at');
+        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$gameId.'/shot/'.$hole->letter().'/'.$hole->number());
+        $response = json_decode($res->getBody());
+
+        return $response->result;
     }
 
     /**

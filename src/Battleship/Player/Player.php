@@ -1,8 +1,8 @@
 <?php
 
-namespace Battleship\Client;
+namespace Battleship\Player;
 
-use Battleship\Game\Game;
+use Battleship\Game;
 use Battleship\Hole;
 
 interface Player
@@ -20,11 +20,10 @@ interface Player
 
     /**
      * @param string $gameId
-     * @param string $letter
-     * @param int $number
+     * @param Hole $hole
      * @return mixed
      */
-    public function shotAt($gameId, $letter, $number);
+    public function shotAt($gameId, Hole $hole);
 
     /**
      * @param string $gameId
