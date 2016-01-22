@@ -15,13 +15,15 @@ You can code your own REST service in any language. However, we have developed s
 
 * [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton)
 
-If you want to create yours, just implement in any language with ahy technology the following interface.
+If you want to create yours, just implement in any language with any technology the following interface.
 
 ## API Detail
 
-There are 5 REST API methods to implement. For a full running example, check [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton).
+There are 6 REST API methods to implement. For a full running example, check [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton).
 
 #### New game
+
+The referee will call this method to you and your opponent in order to check that all players are fair. You will return a game id in order to identify the game for all the calls, so you can play different games at the same time, and a string representing where you have placed your ships.
 
 Request:
 
@@ -30,7 +32,7 @@ Request:
 Response:
 
     {
-        gameId: "1",
+        gameId: "550e8400-e29b-41d4-a716-446655440000",
         grid: "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000"
     }
 
@@ -58,9 +60,12 @@ Example: The following string "0300222200030000000003100000000010005000001000500
 
 #### Call your shot!
 
+The referee will call this method to ask you where you want to shoot to your opponent. You must return a letter and a number.
+
 Request:
 
     POST /battleship/game/:gameId/shot
+    (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000/shot)
 
 Response:
 
@@ -69,13 +74,17 @@ Response:
         number: 3
     }
 
+- **letter**: uppercase letter from A to J (10 rows)
+- **number**: integer number from 1 to 10 (10 columns)
+
 #### Receive result of the shot
 
-The referee will give you the result of the last shot you send to your opponent.
+The referee will give you the result of the last shot you send to your opponent. So, you can plan your next shots.
 
 Request:
 
-    POST /battleship/game/:gameId/shot-result
+    POST /battleship/game/:gameId/shot-result/:result
+    (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000/shot-result/1)
 
 Response:
 
@@ -83,17 +92,15 @@ Response:
         result: 0
     }
 
-Result must be one of the following values:
-- 0: Miss
-- 1: Hit
-- 2: Sunk!
+`result` can be what
 
 #### Receive a shot from opponents
 
 Request:
 
     POST /battleship/game/:gameId/fire/:letter/:number
-
+    (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000/fire/A/1)
+    
 Response:
 
     {
@@ -112,12 +119,15 @@ Referee will call this method after the game has ended. You can use this call fo
 Request:
 
     DELETE /battleship/game/:gameId
+    (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000)
 
 Response:
 
     {
         result: 0
     }
+
+`result` can be whatever you want.
 
 ## Run a war between two REST Services
 
