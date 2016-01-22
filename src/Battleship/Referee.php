@@ -71,6 +71,8 @@ class Referee
                     break;
                 }
 
+                $this->playerA->lastShotResult($this->gameA->gameId(), $refereeShotResult);
+
                 if ($this->gridB->areAllShipsSunk()) {
                     $winner = self::PLAYER_1;
                     break;
@@ -85,6 +87,8 @@ class Referee
                     throw new \Exception('Shot result should be '.$refereeShotResult);
                     break;
                 }
+
+                $this->playerB->lastShotResult($this->gameB->gameId(), $refereeShotResult);
 
                 if ($this->gridA->areAllShipsSunk()) {
                     $winner = self::PLAYER_2;

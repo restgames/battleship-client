@@ -49,6 +49,18 @@ class RestApiPlayer implements Player
 
     /**
      * @param string $gameId
+     * @return Hole
+     */
+    public function lastShotResult($gameId, $result)
+    {
+        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$gameId.'/shot-result/'.$result);
+        $response = json_decode($res->getBody());
+
+        return $response->result;
+    }
+
+    /**
+     * @param string $gameId
      * @param Hole $hole
      * @return int
      */

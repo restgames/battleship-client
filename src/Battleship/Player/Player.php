@@ -20,8 +20,15 @@ interface Player
 
     /**
      * @param string $gameId
+     * @param int $result
+     * @return int
+     */
+    public function lastShotResult($gameId, $result);
+
+    /**
+     * @param string $gameId
      * @param Hole $hole
-     * @return mixed
+     * @return int
      */
     public function shotAt($gameId, Hole $hole);
 
