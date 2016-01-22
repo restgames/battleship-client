@@ -69,6 +69,25 @@ Response:
         number: 3
     }
 
+#### Receive result of the shot
+
+The referee will give you the result of the last shot you send to your opponent.
+
+Request:
+
+    POST /battleship/game/:gameId/shot-result
+
+Response:
+
+    {
+        result: 0
+    }
+
+Result must be one of the following values:
+- 0: Miss
+- 1: Hit
+- 2: Sunk!
+
 #### Receive a shot from opponents
 
 Request:
