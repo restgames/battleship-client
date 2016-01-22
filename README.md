@@ -7,7 +7,7 @@ Use this tool when two mates have developed their own REST Service for playing B
 
 ## Rules
 
-The rules are the official ones from the Hasbro Board Game. You can find then here: [http://www.hasbro.com/common/instruct/Battleship.PDF]()
+The rules are the official ones from the Hasbro Board Game. You can find then here: http://www.hasbro.com/common/instruct/Battleship.PDF
 
 ## How to create your own battleship engine
 
@@ -39,7 +39,7 @@ Response:
   - 1 x Carrier (5 holes and ID 1)
   - 1 x Battleship (4 holes and ID 2)
   - 1 x Cruiser (3 holes and ID 3)
-  - 1 x Submarine (5 holes and ID 4)
+  - 1 x Submarine (3 holes and ID 4)
   - 1 x Destroyer (2 holes and ID 5)
 
 Example: The following string "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000" is the same as:
