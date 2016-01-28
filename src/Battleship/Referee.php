@@ -3,106 +3,198 @@
 namespace Battleship;
 
 use Battleship\Player\Player;
+use Battleship\Player\PlayerId;
 
 class Referee
 {
-    const PLAYER_2 = 'Player #2';
-    const PLAYER_1 = 'Player #1';
-    /**
-     * @var Player
-     */
-    private $playerA;
+    private $currentPlayerId;
+    private $opponentPlayerId;
 
     /**
-     * @var Player
+     * @var Game[]
      */
-    private $playerB;
+    private $games;
 
     /**
-     * @var Grid
+     * @var Grid[]
      */
-    private $gridA;
+    private $grids;
 
     /**
-     * @var Grid
+     * @var Player[]
      */
-    private $gridB;
+    private $players;
+
+    /**
+     * @var int
+     */
+    private $turn;
+
+    /**
+     * @var PlayerId
+     */
+    private $winner;
 
     public function __construct(Player $playerA, Player $playerB)
     {
-        $this->playerA = $playerA;
-        $this->playerB = $playerB;
-        $this->gridA = null;
-        $this->gridB = null;
-        $this->gameA = null;
-        $this->gameB = null;
+        $this->currentPlayerId = PlayerId::fromA();
+        $this->opponentPlayerId = $this->currentPlayerId->opponent();
+
+        $this->games = [];
+        $this->grids = [];
+        $this->players = [
+            $this->currentPlayerId->value() => $playerA,
+            $this->opponentPlayerId->value() => $playerB
+        ];
+
+        $this->turn = 1;
+        $this->winner = null;
+        $this->reason = 'You destroy all your enemy\'s ships!';
     }
 
     public function play()
     {
-        $winner = null;
-        $reason = 'You destroy all your enemy\'s ships!';
-        $turn = 1;
-
         try {
-            try {
-                $this->gameA = $this->playerA->startGame();
-                $this->gridA = $this->gameA->grid();
-            } catch(\InvalidArgumentException $e) {
-                $winner = self::PLAYER_2;
-            }
+            $this->tryToStartTheGameOnPlayer($this->currentPlayerId);
+            $this->tryToStartTheGameOnPlayer($this->opponentPlayerId);
 
-            try {
-                $this->gameB = $this->playerB->startGame();
-                $this->gridB = $this->gameB->grid();
-            } catch(\InvalidArgumentException $e) {
-                $winner = self::PLAYER_1;
-            }
-
-            while ($winner === null || $turn < 64 * 2) {
-                echo '.';
-                $shot = $this->playerA->fire($this->gameA->gameId());
-                $shotResult = $this->playerB->shotAt($this->gameB->gameId(), $shot);
-                $refereeShotResult = $this->gridB->shot($shot);
-
-                if ($refereeShotResult !== $shotResult) {
-                    $winner = self::PLAYER_1;
-                    throw new \Exception('Shot result should be '.$refereeShotResult);
-                    break;
-                }
-
-                $this->playerA->lastShotResult($this->gameA->gameId(), $refereeShotResult);
-
-                if ($this->gridB->areAllShipsSunk()) {
-                    $winner = self::PLAYER_1;
-                    break;
-                }
-
-                $shot = $this->playerB->fire($this->gameB->gameId());
-                $shotResult = $this->playerA->shotAt($this->gameA->gameId(), $shot);
-                $refereeShotResult = $this->gridA->shot($shot);
-
-                if ($refereeShotResult !== $shotResult) {
-                    $winner = self::PLAYER_2;
-                    throw new \Exception('Shot result should be '.$refereeShotResult);
-                    break;
-                }
-
-                $this->playerB->lastShotResult($this->gameB->gameId(), $refereeShotResult);
-
-                if ($this->gridA->areAllShipsSunk()) {
-                    $winner = self::PLAYER_2;
-                    break;
-                }
-
-                sleep(1);
-
-                $turn++;
+            while (!$this->isGameFinished()) {
+                $this->playTurn();
             }
         } catch(\Exception $e) {
-            $reason = $e->getMessage();
+            $this->reason = $e->getMessage();
         }
 
-        return new GameResult($winner, $reason, $turn);
+        return new GameResult(
+            $this->winner,
+            $this->reason,
+            $this->turn
+        );
    }
+
+    /**
+     * @param $player
+     * @throws \Exception
+     */
+    private function tryToStartTheGameOnPlayer(PlayerId $player)
+    {
+        try {
+            $this->startGameOnPlayer($player);
+        } catch (\InvalidArgumentException $e) {
+            $this->declareWinner($player->opponent(), 'Your opponent did not return a valid board');
+            throw $e;
+        } catch (\Exception $e) {
+            $this->declareWinner($player->opponent(), 'It was impossible to start the game with your opponent');
+            throw $e;
+        }
+    }
+
+    private function startGameOnPlayer(PlayerId $playerId)
+    {
+        $this->games[$playerId->value()] = $this->players[$playerId->value()]->startGame();
+        $this->grids[$playerId->value()] = $this->games[$playerId->value()];
+    }
+
+    /**
+     * @param $winner
+     * @param $reason
+     */
+    private function declareWinner($winner, $reason)
+    {
+        $this->winner = $winner;
+        $this->reason = $reason;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isGameFinished()
+    {
+        return $this->winner !== null && $this->turn < 100 * 2;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function playTurn()
+    {
+        for ($step = 0; $step < 1; $step++) {
+            $shot = $this->tryToAskForNextShotToPlayer($this->currentPlayerId, $this->opponentPlayerId);
+            $shotResult = $this->tryToShootToPlayer($this->currentPlayerId, $this->opponentPlayerId, $shot);
+            $refereeShotResult = $this->checkIfShotResultIsCorrect($this->currentPlayerId, $this->opponentPlayerId, $shot, $shotResult);
+
+            $this->players[$this->currentPlayerId->value()]->lastShotResult($this->games[$this->currentPlayerId->value()]->gameId(), $refereeShotResult);
+
+            if ($this->grids[$this->opponentPlayerId->value()]->areAllShipsSunk()) {
+                $this->winner = $this->currentPlayerId;
+                throw new \Exception($this->reason);
+            }
+
+            $this->currentPlayerId = $this->opponentPlayerId;
+            $this->opponentPlayerId = $this->currentPlayerId->opponent();
+        }
+
+        $this->sleepCall();
+        $this->turn++;
+    }
+
+    /**
+     * @param $currentPlayerId
+     * @param $nextPlayerId
+     * @return Hole
+     * @throws \Exception
+     */
+    private function tryToAskForNextShotToPlayer($currentPlayerId, $nextPlayerId)
+    {
+        try {
+            return $this->players[$currentPlayerId->value()]->fire($this->games[$currentPlayerId->value()]->gameId());
+        } catch (\Exception $e) {
+            $this->declareWinner($nextPlayerId, 'Your opponent did not fire properly!');
+            throw $e;
+        }
+    }
+
+    /**
+     * @param $currentPlayerId
+     * @param $nextPlayerId
+     * @param $shot
+     * @return array
+     * @throws \Exception
+     */
+    private function tryToShootToPlayer($currentPlayerId, $nextPlayerId, $shot)
+    {
+        try {
+            return $this->players[$nextPlayerId->value()]->shotAt($this->games[$nextPlayerId->value()]->gameId(), $shot);
+        } catch (\Exception $e) {
+            $this->declareWinner($currentPlayerId, 'Your opponent did not respond to the shot you send it!');
+            throw $e;
+        }
+    }
+
+    /**
+     * @return int
+     */
+    protected function sleepCall()
+    {
+        sleep(1);
+    }
+
+    /**
+     * @param $currentPlayerId
+     * @param $nextPlayerId
+     * @param $shot
+     * @param $shotResult
+     * @return int
+     * @throws AllShipsAreNotPlacedException
+     * @throws \Exception
+     */
+    private function checkIfShotResultIsCorrect($currentPlayerId, $nextPlayerId, $shot, $shotResult)
+    {
+        $refereeShotResult = $this->grids[$nextPlayerId->value()]->shot($shot);
+        if ($refereeShotResult !== $shotResult) {
+            $this->declareWinner($currentPlayerId, 'Your opponent did not respond the correct result to the shot you send it!');
+            throw new \Exception($this->reason);
+        }
+        return $refereeShotResult;
+    }
 }
