@@ -5,35 +5,44 @@ namespace Battleship\Player;
 use Battleship\Game;
 use Battleship\Hole;
 
-interface Player
+abstract class Player
 {
     /**
      * @return Game
      */
-    public function startGame();
+    abstract public function startGame();
 
     /**
-     * @param string $gameId
      * @return Hole
      */
-    public function fire($gameId);
+    abstract public function fire();
 
     /**
-     * @param string $gameId
      * @param int $result
      * @return int
      */
-    public function lastShotResult($gameId, $result);
+    abstract public function lastShotResult($result);
 
     /**
-     * @param string $gameId
      * @param Hole $hole
      * @return int
      */
-    public function shotAt($gameId, Hole $hole);
+    abstract public function shotAt(Hole $hole);
+
+    abstract public function finishGame();
 
     /**
-     * @param string $gameId
+     * @return Game
      */
-    public function finishGame($gameId);
+    abstract public function game();
+
+    public function areAllShipsSunk()
+    {
+        return $this->game()->grid()->areAllShipsSunk();
+    }
+
+    public function shot($hole)
+    {
+        return $this->game()->grid()->shot($hole);
+    }
 }

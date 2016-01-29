@@ -16,11 +16,6 @@ class PlayerId
         return new self(0);
     }
 
-    public static function fromB()
-    {
-        return new self(1);
-    }
-
     public function opponent()
     {
         return new self(($this->value + 1) % 2);

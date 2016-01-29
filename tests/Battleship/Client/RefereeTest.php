@@ -5,6 +5,7 @@ namespace Battleship\Client;
 use Battleship\Game;
 use Battleship\Grid;
 use Battleship\Hole;
+use Battleship\Player\LocalPlayer;
 use Battleship\Referee;
 
 class RefereeTest extends \PHPUnit_Framework_TestCase
@@ -158,6 +159,49 @@ class RefereeTest extends \PHPUnit_Framework_TestCase
         $this->checkWinnerIs('Player #1', $this->playGameWithRefereeAndPlayers(
             $player1,
             $player2
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function givenPlayersWhenPlayer2ReturnsDifferentValueAnsweringToShotThenWinnerIsPlayer1()
+    {
+        $player1 = $this->playerWithValidGrid();
+        $player1->method('fire')->will(
+            $this->returnValue(new Hole('A', 1))
+        );
+
+        $player2 = $this->playerWithValidGrid();
+        $player2->method('shotAt')->will(
+            $this->returnValue(1)
+        );
+
+        $this->checkWinnerIs('Player #1', $this->playGameWithRefereeAndPlayers(
+            $player1,
+            $player2
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function givenSamePlayersWithSameStrategyWhenPlayingThenWinnerIsPlayer1()
+    {
+        $this->checkWinnerIs('Player #1', $this->playGameWithRefereeAndPlayers(
+            new LocalPlayer(),
+            new LocalPlayer()
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function givenDifferentPlayersAndPlayer2BetterThanPlayer1WhenPlayingThenWinnerIsPlayer2()
+    {
+        $this->checkWinnerIs('Player #2', $this->playGameWithRefereeAndPlayers(
+            new LocalPlayer(-1),
+            new LocalPlayer()
         ));
     }
 }

@@ -7,15 +7,25 @@ use Battleship\Grid;
 use Battleship\Hole;
 use GuzzleHttp\Client;
 
-class RestApiPlayer implements Player
+class RestApiPlayer extends Player
 {
     private $client;
     private $endpoint;
 
+    /**
+     * @var Game
+     */
+    private $game;
+    private $gameId;
+
+    /**
+     * @param string $endpoint
+     */
     public function __construct($endpoint)
     {
         $this->client = new Client();
         $this->endpoint = $endpoint;
+        $this->game = null;
     }
 
     /**
@@ -26,19 +36,22 @@ class RestApiPlayer implements Player
         $res = $this->client->request('POST', $this->endpoint.'/battleship/game');
         $response = json_decode($res->getBody());
 
-        return new Game(
+        $this->game = new Game(
             $response->gameId,
             Grid::fromString($response->grid)
         );
+
+        $this->gameId = $this->game()->gameId();
+
+        return $this->game;
     }
 
     /**
-     * @param string $gameId
      * @return Hole
      */
-    public function fire($gameId)
+    public function fire()
     {
-        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$gameId.'/fire');
+        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/fire');
         $response = json_decode($res->getBody());
 
         return new Hole(
@@ -48,35 +61,36 @@ class RestApiPlayer implements Player
     }
 
     /**
-     * @param string $gameId
-     * @return Hole
+     * @param int $result
+     * @return void
      */
-    public function lastShotResult($gameId, $result)
+    public function lastShotResult($result)
     {
-        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$gameId.'/shot-result/'.$result);
-        $response = json_decode($res->getBody());
-
-        return $response->result;
+        $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/shot-result/'.$result);
     }
 
     /**
-     * @param string $gameId
      * @param Hole $hole
      * @return int
      */
-    public function shotAt($gameId, Hole $hole)
+    public function shotAt(Hole $hole)
     {
-        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$gameId.'/shot/'.$hole->letter().'/'.$hole->number());
+        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/shot/'.$hole->letter().'/'.$hole->number());
         $response = json_decode($res->getBody());
 
         return $response->result;
     }
 
-    /**
-     * @param string $gameId
-     */
-    public function finishGame($gameId)
+    public function finishGame()
     {
-        $this->client->request('DELETE', $this->endpoint.'/battleship/game/'.$gameId);
+        $this->client->request('DELETE', $this->endpoint.'/battleship/game/'.$this->gameId);
+    }
+
+    /**
+     * @return Game
+     */
+    public function game()
+    {
+        return $this->game;
     }
 }

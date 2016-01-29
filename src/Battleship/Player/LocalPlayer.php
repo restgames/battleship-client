@@ -2,62 +2,92 @@
 
 namespace Battleship\Player;
 
-use Battleship\Game\Game;
+use Battleship\Game;
 use Battleship\Grid;
 use Battleship\Hole;
 
-class LocalPlayer implements Player
+class LocalPlayer extends Player
 {
-    private $currentLetterIndex;
-    private $currentNumberIndex;
-    private $grid;
-    private $letters;
-    private $numbers;
+    /**
+     * @var Game
+     */
+    private $game;
+    private $nextShot;
 
-    public function __construct()
+    public function __construct($shootingDirection = 1)
     {
-        $this->letters = range('A', 'G');
-        $this->numbers = range(1, 8);
+        $this->game = null;
 
-        $this->currentLetterIndex = 0;
-        $this->currentNumberIndex = 0;
+        if ($shootingDirection > 0) {
+            $this->nextShot = -1;
+            $this->shootingDirection = 1;
+        } else {
+            $this->nextShot = 100;
+            $this->shootingDirection = -1;
+        }
     }
 
+    /**
+     * @return Game
+     */
     public function startGame()
     {
-        $this->grid =
-            (new Grid())
-            ->placeShip(new Submarine(), new Hole('A', 1), Position::HORIZONTAL())
-            ->placeShip(new Battleship(), new Hole('B', 1), Position::HORIZONTAL())
-            ->placeShip(new Carrier(), new Hole('C', 1), Position::HORIZONTAL())
-            ->placeShip(new Destroyer(), new Hole('D', 1), Position::HORIZONTAL())
-            ->placeShip(new Cruiser(), new Hole('E', 1), Position::HORIZONTAL());
-
-        return new Game(
+        $this->game = new Game(
             1,
-            $this->grid
+            Grid::fromString(
+                '0300222200'.
+                '0300000000'.
+                '0310000000'.
+                '0010005000'.
+                '0010005000'.
+                '0010044400'.
+                '0010000000'.
+                '0000000000'.
+                '0000000000'.
+                '0000000000'
+            )
         );
-
-        $result->board = $this->grid->render();
-
-        return $result;
     }
 
-    public function fire($gameId)
+    /**
+     * @return Hole
+     */
+    public function fire()
     {
+        $this->nextShot += $this->shootingDirection;
+
+        $letters = Grid::letters();
+        $numbers = Grid::numbers();
+
         return new Hole(
-            $this->letters[$this->currentLetterIndex],
-            $this->numbers[$this->currentNumberIndex]
+            $letters[$this->nextShot / count($numbers)],
+            $numbers[$this->nextShot % count($numbers)]
         );
     }
 
-    public function shotAt($gameId, $letter, $number)
+    /**
+     * @param int $result
+     * @return int
+     */
+    public function lastShotResult($result)
     {
-        return Grid::WATER;
     }
 
-    public function finishGame($gameId)
+    /**
+     * @param Hole $hole
+     * @return int
+     */
+    public function shotAt(Hole $hole)
     {
+        return $this->game->grid()->shot($hole);
+    }
 
+    public function finishGame()
+    {
+    }
+
+    public function game()
+    {
+        return $this->game;
     }
 }

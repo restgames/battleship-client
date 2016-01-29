@@ -1,48 +1,41 @@
-Battleship Referee
-==================
+# Battleship Referee
 
 [![Build Status](https://travis-ci.org/restgames/battleship-client.svg)](https://travis-ci.org/restgames/battleship-client)
 
-Use this tool when two mates have developed their own REST Service for playing Battleship and you want them to fight each other.
+This is the Referee for making two player play Battleship.
 
-## Rules
+### What's REST Games?
 
-The rules are the official ones from the Hasbro Board Game. You can find then here: http://www.hasbro.com/common/instruct/Battleship.PDF
+Welcome to REST Games! Our goal is to provide you some coding challenges that go beyond the katas. You will implement a small JSON REST API that will play a well known game. The cool part comes when two mates develop the same JSON REST API and a _Referee_ can make them play one against the other. Cool, isn't it?
+
+## Battleship rules
+
+The rules are the official ones from the Hasbro original board game. You can find then here: http://www.hasbro.com/common/instruct/Battleship.PDF. A part of the original rules, if your REST APIs does not work properly (connectivity issues, returning wrong values, etc.) you will loose the game.
 
 ## How to create your own battleship engine
 
-You can code your own REST service in any language. However, we have developed some projects to use as skeletons:
+You can code your own REST service in any language. However, in order to help you start faster, we have developed for you some skeleton projects in different languages:
 
 * [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton)
+* Ruby Sinatra Skeleton waiting for contributions...
+* Scala Play Skeleton waiting for contributions...
 
-If you want to create yours, just implement in any language with any technology the following interface.
+If you want to create yours, just choose your preferred language, any REST framework, any sort of persistence or AI mechanism that implement the following REST API interface.
 
-## API Detail
+## API Details
 
-There are 6 REST API methods to implement. For a full running example, check [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton).
+There are 6 REST API methods to implement. As a tip, check the skeletons for a good starting point.
 
-#### New game
+#### Start Game
 
-The referee will call this method to you and your opponent in order to check that all players are fair. You will return a game id in order to identify the game for all the calls, so you can play different games at the same time, and a string representing where you have placed your ships.
+The referee will call this method to you and your opponent in order to start a game. You will return a game id so you can identify the game for all the next calls (you can be playing different games at the same time). You'll also return a string representing where you have placed your ships following the guide below.
 
-Request:
-
-    POST /battleship/game
-
-Response:
-
-    {
-        gameId: "550e8400-e29b-41d4-a716-446655440000",
-        grid: "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000"
-    }
-
-- **gameId**: a string with any id that identify the game so you can find them on the next calls. Something such as an UUID should work.
-- **grid**: a 100 length string representing a battleship grid (10x10) with all ships placed:
-  - 1 x Carrier (5 holes and ID 1)
-  - 1 x Battleship (4 holes and ID 2)
-  - 1 x Cruiser (3 holes and ID 3)
-  - 1 x Submarine (3 holes and ID 4)
-  - 1 x Destroyer (2 holes and ID 5)
+You need to place 5 ships:
+  - 1 x Carrier (5 holes and id #1)
+  - 1 x Battleship (4 holes and id #2)
+  - 1 x Cruiser (3 holes and id #3)
+  - 1 x Submarine (3 holes and id #4)
+  - 1 x Destroyer (2 holes and id #5)
 
 Example: The following string "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000" is the same as:
 
@@ -58,9 +51,25 @@ Example: The following string "0300222200030000000003100000000010005000001000500
     I 0 0 0 0 0 0 0 0 0 0
     J 0 0 0 0 0 0 0 0 0 0
 
+This way, referee can check that nobody is cheating. You know, fair play ;)
+
+Request:
+
+    POST /battleship/game
+
+Response:
+
+    {
+        gameId: "550e8400-e29b-41d4-a716-446655440000",
+        grid: "0300222200030000000003100000000010005000001000500000100444000010000000000000000000000000000000000000"
+    }
+
+- **gameId**: a string with any id that identify the game so you can find them on the next calls. Something such as an UUID should work.
+- **grid**: a 100 length string representing a battleship grid (10x10) with all ships placed.
+
 #### Call your shot!
 
-The referee will call this method to ask you where you want to shoot to your opponent. You must return a letter and a number.
+The referee will call this method to ask you where you want to shoot to your opponent. You must return a letter and a number representing the hole to shot at.
 
 Request:
 
@@ -71,7 +80,7 @@ Response:
 
     {
         letter: "A",
-        number: 3
+        number: 2
     }
 
 - **letter**: uppercase letter from A to J (10 rows)
@@ -79,28 +88,30 @@ Response:
 
 #### Receive result of the shot
 
-The referee will give you the result of the last shot you send to your opponent. So, you can plan your next shots.
+After giving a hole to shot to your opponent's grid, you need feedback about the result of the shot. With this information, you can build your strategy about where your next shot should be.
 
 Request:
 
-    POST /battleship/game/:gameId/shot-result/:result
+    POST /battleship/game/:gameId/shot-result/:shot-result
     (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000/shot-result/1)
+
+- **shot-result**: uppercase letter from A to J (10 rows)
 
 Response:
 
-    {
-        result: 0
-    }
+    {}
 
-`result` can be what
+You can return whatever you want, the referee does not care about the response of this call.
 
 #### Receive a shot from opponents
 
+Life is not just shooting, you will also receive shots from your opponent. So you must return if the result was miss, hit or sunk.
+
 Request:
 
-    POST /battleship/game/:gameId/fire/:letter/:number
-    (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000/fire/A/1)
-    
+    POST /battleship/game/:gameId/receive-shot/:letter/:number
+    (for example, /battleship/game/550e8400-e29b-41d4-a716-446655440000/receive-shot/A/1)
+
 Response:
 
     {
@@ -111,6 +122,8 @@ Result must be one of the following values:
 - 0: Miss
 - 1: Hit
 - 2: Sunk!
+
+Referee will check that your result is correct, so don't cheat. **If you receive a shot at a already sunk ship, you should return sunk.**
 
 #### Finishing a game
 
@@ -123,44 +136,10 @@ Request:
 
 Response:
 
-    {
-        result: 0
-    }
+    {}
 
-`result` can be whatever you want.
+You can return whatever you want, the referee does not care about the response of this call.
 
-## Run a war between two REST Services
+### Contribute
 
-You'll need PHP to run this referee.
-
-#### Installation
-
-    curl -sS https://getcomposer.org/installer | php
-    php composer.phar install
-
-#### Start a game
-
-    ./bin/battleship play http://localhost:8080 http://localhost:8080
-
-#### Fighting a local service on friend's machine
-
-If you want to make public a service running on your machine, you don't need a public webserver, just use a tool such as [Ngrok](https://ngrok.com/).
-
-#### Output
-
-    REST Games: Battleship
-    Play more games at: https://github.com/restgames
-    Player #1 (http://localhost:8080) has declared war to Player #2 (http://localhost:8080)!
-    War has started and bombs are flying over our heads...
-
-    ..........
-    ..........
-    ..........
-    ..........
-    ..........
-    ..........
-    ...
-
-    Player #1 is the winner! Congratulations!
-    You destroy all your enemy's ships!
-    You did it in 63 turns.
+We are more than happy to receive contributions about new games, new skeletons, issues, etc. Have fun!
