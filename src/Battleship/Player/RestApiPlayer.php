@@ -62,7 +62,6 @@ class RestApiPlayer extends Player
 
     /**
      * @param int $result
-     * @return void
      */
     public function lastShotResult($result)
     {
@@ -71,6 +70,7 @@ class RestApiPlayer extends Player
 
     /**
      * @param Hole $hole
+     *
      * @return int
      */
     public function shotAt(Hole $hole)

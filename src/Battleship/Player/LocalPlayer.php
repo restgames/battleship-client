@@ -67,6 +67,7 @@ class LocalPlayer extends Player
 
     /**
      * @param int $result
+     *
      * @return int
      */
     public function lastShotResult($result)
@@ -75,6 +76,7 @@ class LocalPlayer extends Player
 
     /**
      * @param Hole $hole
+     *
      * @return int
      */
     public function shotAt(Hole $hole)

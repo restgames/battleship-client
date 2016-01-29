@@ -19,12 +19,14 @@ abstract class Player
 
     /**
      * @param int $result
+     *
      * @return int
      */
     abstract public function lastShotResult($result);
 
     /**
      * @param Hole $hole
+     *
      * @return int
      */
     abstract public function shotAt(Hole $hole);

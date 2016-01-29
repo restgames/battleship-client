@@ -44,7 +44,7 @@ class Referee
 
         $this->players = [
             $this->currentPlayerId->value() => $playerA,
-            $this->opponentPlayerId->value() => $playerB
+            $this->opponentPlayerId->value() => $playerB,
         ];
 
         $this->sleepTime = $sleepTime;
@@ -62,7 +62,7 @@ class Referee
             while (!$this->isGameFinished()) {
                 $this->playTurn();
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->reason = $e->getMessage();
         } finally {
             $this->tryToFinishGameOnPlayer($this->currentPlayerId);
@@ -74,10 +74,11 @@ class Referee
             $this->reason,
             $this->turn
         );
-   }
+    }
 
     /**
      * @param $player
+     *
      * @throws \Exception
      */
     private function tryToStartTheGameOnPlayer(PlayerId $player)
@@ -121,7 +122,7 @@ class Referee
      */
     private function playTurn()
     {
-        for ($step = 0; $step < 1; $step++) {
+        for ($step = 0; $step < 1; ++$step) {
             $shot = $this->tryToAskForNextShotToPlayer($this->currentPlayerId, $this->opponentPlayerId);
             $shotResult = $this->tryToShootToPlayer($this->currentPlayerId, $this->opponentPlayerId, $shot);
             $this->checkIfShotResultIsCorrect($shot, $shotResult);
@@ -140,7 +141,9 @@ class Referee
     /**
      * @param $currentPlayerId
      * @param $nextPlayerId
+     *
      * @return Hole
+     *
      * @throws \Exception
      */
     private function tryToAskForNextShotToPlayer($currentPlayerId, $nextPlayerId)
@@ -158,7 +161,9 @@ class Referee
      * @param $currentPlayerId
      * @param $nextPlayerId
      * @param $shot
+     *
      * @return array
+     *
      * @throws \Exception
      */
     private function tryToShootToPlayer($currentPlayerId, $nextPlayerId, $shot)
@@ -182,7 +187,9 @@ class Referee
     /**
      * @param Hole $shot
      * @param $shotResult
+     *
      * @return bool
+     *
      * @throws AllShipsAreNotPlacedException
      * @throws \Exception
      */
@@ -203,7 +210,6 @@ class Referee
         try {
             $this->players[$this->currentPlayerId->value()]->lastShotResult($shotResult);
         } catch (\Exception $e) {
-
         }
     }
 
@@ -211,7 +217,7 @@ class Referee
     {
         $this->currentPlayerId = $this->opponentPlayerId;
         $this->opponentPlayerId = $this->currentPlayerId->opponent();
-        $this->turn++;
+        ++$this->turn;
     }
 
     /**
@@ -227,7 +233,6 @@ class Referee
         try {
             $this->players[$playerId->value()]->finishGame();
         } catch (\Exception $e) {
-
         }
     }
 }
