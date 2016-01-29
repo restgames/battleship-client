@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/restgames/battleship-client.svg)](https://travis-ci.org/restgames/battleship-client)
 
-This is the Referee for making two player play Battleship.
+This is the Referee for making two players play Battleship.
 
 ### What's REST Games?
 
