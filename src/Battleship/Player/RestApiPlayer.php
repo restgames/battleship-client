@@ -51,7 +51,7 @@ class RestApiPlayer extends Player
      */
     public function fire()
     {
-        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/fire');
+        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/shot');
         $response = json_decode($res->getBody());
 
         return new Hole(
@@ -75,7 +75,7 @@ class RestApiPlayer extends Player
      */
     public function shotAt(Hole $hole)
     {
-        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/shot/'.$hole->letter().'/'.$hole->number());
+        $res = $this->client->request('POST', $this->endpoint.'/battleship/game/'.$this->gameId.'/receive-shot/'.$hole->letter().'/'.$hole->number());
         $response = json_decode($res->getBody());
 
         return $response->result;
