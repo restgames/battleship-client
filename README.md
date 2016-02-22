@@ -1,7 +1,5 @@
 # Battleship Referee
 
-![Build Status](https://www.iconfinder.com/icons/190294/download/png/1042)
-
 [![Build Status](https://travis-ci.org/restgames/battleship-client.svg)](https://travis-ci.org/restgames/battleship-client)
 
 This is the Referee for making two players play Battleship.
