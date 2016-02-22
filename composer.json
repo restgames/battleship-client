@@ -11,7 +11,8 @@
     "require": {
         "guzzlehttp/guzzle": "^6.1",
         "symfony/console": "^3.0",
-        "restgames/battleship-php": "dev-master"
+        "restgames/battleship-php": "dev-master",
+        "carlosbuenosvinos/ddd": "^1.5"
     },
     "autoload": {
         "psr-4": {
@@ -25,5 +26,9 @@
         "psr-4": {
             "": "tests"
         }
+    },
+    "scripts": {
+        "tests": "vendor/bin/phpunit",
+        "bdd": "vendor/bin/phpunit --testdox"
     }
 }

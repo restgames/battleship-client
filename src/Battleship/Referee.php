@@ -2,8 +2,10 @@
 
 namespace Battleship;
 
+use Battleship\Events\Generic;
 use Battleship\Player\Player;
 use Battleship\Player\PlayerId;
+use Ddd\Domain\DomainEventPublisher;
 
 class Referee
 {
@@ -72,7 +74,7 @@ class Referee
         return new GameResult(
             $this->winner,
             $this->reason,
-            $this->turn
+            $this->turn / 2
         );
     }
 
@@ -150,7 +152,10 @@ class Referee
     {
         $currentPlayerIdValue = $currentPlayerId->value();
         try {
-            return $this->players[$currentPlayerIdValue]->fire();
+            $fire = $this->players[$currentPlayerIdValue]->fire();
+            $this->fireEvent($currentPlayerIdValue, 'shots at '.$fire->letter().'-'.$fire->number());
+
+            return $fire;
         } catch (\Exception $e) {
             $this->declareWinner($nextPlayerId, 'Your opponent did not fire properly!');
             throw $e;
@@ -169,7 +174,9 @@ class Referee
     private function tryToShootToPlayer($currentPlayerId, $nextPlayerId, $shot)
     {
         try {
-            return $this->players[$nextPlayerId->value()]->shotAt($shot);
+            $result = $this->players[$nextPlayerId->value()]->shotAt($shot);
+            $this->fireEvent($nextPlayerId->value(), 'answers with '.$result);
+            return $result;
         } catch (\Exception $e) {
             $this->declareWinner($currentPlayerId, 'Your opponent did not respond to the shot you send it!');
             throw $e;
@@ -234,5 +241,10 @@ class Referee
             $this->players[$playerId->value()]->finishGame();
         } catch (\Exception $e) {
         }
+    }
+
+    private function fireEvent($playerId, $message)
+    {
+        DomainEventPublisher::instance()->publish(new Generic($playerId.' '.$message));
     }
 }

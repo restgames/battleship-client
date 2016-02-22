@@ -42,6 +42,10 @@ class PlayCommand extends Command
         $output->writeln('War has started and bombs are flying over our heads...');
         $output->writeln('');
 
+        \Ddd\Domain\DomainEventPublisher::instance()->subscribe(
+            new \Battleship\LoggingEventSubscriber($output)
+        );
+
         $result = (new Referee(
             new RestApiPlayer($player1),
             new RestApiPlayer($player2)

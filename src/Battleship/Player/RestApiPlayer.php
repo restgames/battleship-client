@@ -62,6 +62,7 @@ class RestApiPlayer extends Player
 
     /**
      * @param int $result
+     * @return void
      */
     public function lastShotResult($result)
     {
