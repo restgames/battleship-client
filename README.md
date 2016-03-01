@@ -17,8 +17,9 @@ The rules are the official ones from the Hasbro original board game. You can fin
 You can code your own REST service in any language. However, in order to help you start faster, we have developed for you some skeleton projects in different languages:
 
 * [PHP Silex Skeleton](https://github.com/restgames/battleship-rest-silex-skeleton)
-* Ruby Sinatra Skeleton waiting for contributions...
+* [Clojure Luminus and Liberator Skeleton](https://github.com/restgames/battleship-rest-clojure-skeleton)
 * Scala Play Skeleton waiting for contributions...
+* Ruby Sinatra Skeleton waiting for contributions...
 
 If you want to create yours, just choose your preferred language, any REST framework, any sort of persistence or AI mechanism that implement the following REST API interface.
 
