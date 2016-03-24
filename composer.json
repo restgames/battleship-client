@@ -1,5 +1,6 @@
 {
     "name": "restgames/battleship-client",
+    "license": "MIT",
     "authors": [
         {
             "name": "Carlos Buenosvinos",
@@ -25,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "": "src"
+            "Battleship\\": "src/Battleship"
         }
     },
     "require-dev": {
