@@ -34,7 +34,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "": "tests"
+            "Battleship\\": "tests/Battleship"
         }
     },
     "scripts": {
